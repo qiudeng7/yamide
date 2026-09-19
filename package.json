@@ -1,0 +1,15 @@
+{
+  "name": "yamide",
+  "private": true,
+  "packageManager": "pnpm@11.19.0",
+  "scripts": {
+    "dev": "pnpm --parallel --filter @yamide/server --filter @yamide/client dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test",
+    "format": "pnpm -r format",
+    "cap:sync": "pnpm --filter @yamide/client cap:sync",
+    "cap:open:android": "pnpm --filter @yamide/client cap:open:android",
+    "cap:open:ios": "pnpm --filter @yamide/client cap:open:ios"
+  }
+}
