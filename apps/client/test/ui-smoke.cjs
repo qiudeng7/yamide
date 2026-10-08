@@ -59,7 +59,11 @@ const assert = require("node:assert/strict");
         break;
       await new Promise((r) => setTimeout(r, 100));
     }
-    browser = await chromium.launch({ headless: true, args: ["--no-sandbox"] });
+    browser = await chromium.launch({
+      channel: process.env.YAMIDE_BROWSER_CHANNEL || undefined,
+      headless: true,
+      args: ["--no-sandbox"],
+    });
     const page = await browser.newPage({
       viewport: { width: 393, height: 852 },
       isMobile: true,
@@ -150,7 +154,9 @@ const assert = require("node:assert/strict");
     for (const child of [vite, server]) {
       try {
         process.kill(-child.pid, "SIGTERM");
-      } catch { /* Already exited. */ }
+      } catch {
+        /* Already exited. */
+      }
     }
     await fs.rm(root, { recursive: true, force: true });
   }

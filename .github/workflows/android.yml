@@ -7,7 +7,7 @@ permissions:
   contents: write
 concurrency:
   group: android-preview
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -27,8 +27,10 @@ jobs:
           log-accepted-android-sdk-licenses: false
       - run: pnpm install --frozen-lockfile --ignore-scripts=false
       - run: pnpm build && pnpm test && pnpm lint && pnpm --filter @yamide/server test:runtime && pnpm --filter @yamide/server test:e2e
-      - run: pnpm --filter @yamide/client exec playwright install --with-deps chromium
       - run: pnpm --filter @yamide/client test:ui
+        timeout-minutes: 5
+        env:
+          YAMIDE_BROWSER_CHANNEL: chrome
       - uses: actions/upload-artifact@v4
         if: always()
         with:
