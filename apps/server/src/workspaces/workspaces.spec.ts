@@ -106,6 +106,14 @@ describe('Workspace lifecycle', () => {
     expect(JSON.stringify(manager.histories.get(`${w.id}:${r.id}`))).toContain(
       'approved',
     );
+    await a.prompt('cancel work');
+    await until(() => a.permissions().length === 1);
+    await a.cancel();
+    await until(() => r.status === 'idle');
+    expect(a.permissions()).toHaveLength(0);
+    expect(JSON.stringify(manager.histories.get(`${w.id}:${r.id}`))).toContain(
+      'cancelled',
+    );
     manager.remove(w.id);
     expect(manager.agents.size).toBe(0);
   });

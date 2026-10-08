@@ -182,12 +182,19 @@ export class AgentRuntime {
     return { ok: true };
   }
   private cancelPermissions() {
-    for (const p of this.pending.values())
+    for (const [id, p] of this.pending) {
       p.resolve({ outcome: { outcome: 'cancelled' } });
+      this.emit('permission-resolved', { id });
+    }
     this.pending.clear();
   }
   private kill() {
-    if (this.process?.pid) stopProcessTree(this.process.pid);
+    if (
+      this.process?.pid &&
+      this.process.exitCode === null &&
+      this.process.signalCode === null
+    )
+      stopProcessTree(this.process.pid);
   }
   dispose() {
     this.disposed = true;
