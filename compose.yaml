@@ -1,0 +1,17 @@
+services:
+  server:
+    build: .
+    init: true
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      YAMIDE_TOKEN: ${YAMIDE_TOKEN:?Set YAMIDE_TOKEN in .env}
+      YAMIDE_ROOT: /projects
+      YAMIDE_STATE_DIR: /home/node/.yamide
+      YAMIDE_AGENTS: ${YAMIDE_AGENTS:-[]}
+    volumes:
+      - ${YAMIDE_PROJECTS_DIR:-./projects}:/projects
+      - yamide-state:/home/node/.yamide
+volumes:
+  yamide-state:

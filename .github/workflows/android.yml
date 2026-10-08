@@ -1,0 +1,58 @@
+name: Android preview release
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: android-preview
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm install --global pnpm@11.19.0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: android-actions/setup-android@v3
+      - run: pnpm install --frozen-lockfile --ignore-scripts=false
+      - run: pnpm build && pnpm test && pnpm lint && pnpm --filter @yamide/server test:runtime && pnpm --filter @yamide/server test:e2e
+      - run: pnpm --filter @yamide/client exec playwright install --with-deps chromium
+      - run: pnpm --filter @yamide/client test:ui
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mobile-ui-screenshots
+          path: apps/client/test-results
+          if-no-files-found: ignore
+      - run: pnpm --filter @yamide/client cap:add:android && pnpm cap:sync
+      - run: node scripts/prepare-android.mjs
+        env:
+          YAMIDE_VERSION_CODE: ${{ github.run_number }}
+      - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
+      - run: chmod +x gradlew && ./gradlew assembleDebug --no-daemon
+        working-directory: apps/client/android
+      - run: cp apps/client/android/app/build/outputs/apk/debug/app-debug.apk yamide-android-preview.apk && sha256sum yamide-android-preview.apk > SHA256SUMS.txt
+      - run: git archive --format=tar.gz HEAD > yamide-server-source.tar.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: yamide-android-preview
+          path: |
+            yamide-android-preview.apk
+            SHA256SUMS.txt
+            yamide-server-source.tar.gz
+      - name: Publish preview release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="v0.1.0-alpha.${GITHUB_RUN_NUMBER}"
+          gh release create "$TAG" yamide-android-preview.apk SHA256SUMS.txt yamide-server-source.tar.gz \
+            --target "$GITHUB_SHA" --prerelease \
+            --title "YAMIDE $TAG" --notes-file docs/release-notes.md

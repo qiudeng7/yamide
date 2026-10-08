@@ -10,3 +10,5 @@ apps/client/android/
 apps/client/ios/
 coverage/
 *.tsbuildinfo
+
+**/test-results/
