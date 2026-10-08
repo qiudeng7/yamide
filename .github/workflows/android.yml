@@ -22,6 +22,9 @@ jobs:
           distribution: temurin
           java-version: 21
       - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
       - run: pnpm install --frozen-lockfile --ignore-scripts=false
       - run: pnpm build && pnpm test && pnpm lint && pnpm --filter @yamide/server test:runtime && pnpm --filter @yamide/server test:e2e
       - run: pnpm --filter @yamide/client exec playwright install --with-deps chromium
