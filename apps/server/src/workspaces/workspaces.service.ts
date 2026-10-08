@@ -87,6 +87,10 @@ export class WorkspacesService implements OnModuleDestroy {
   }
   emit(wid: string, resourceId: string, type: string, data: unknown) {
     const event: Event = { seq: ++this.sequence, resourceId, type, data };
+    if (type === 'removed') {
+      this.events.emit(wid, event);
+      return;
+    }
     const key = `${wid}:${resourceId}`;
     const history = this.histories.get(key) ?? [];
     history.push(event);

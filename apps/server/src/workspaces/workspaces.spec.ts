@@ -70,6 +70,7 @@ describe('Workspace lifecycle', () => {
     expect(manager.terminals.get(r.id)?.cols).toBe(100);
     manager.removeResource(w.id, r.id);
     expect(manager.terminals.has(r.id)).toBe(false);
+    expect(manager.histories.has(`${w.id}:${r.id}`)).toBe(false);
   });
   it('blocks traversal and symlink escapes, including writes into external paths', async () => {
     const w = await manager.create('Test', 'project');

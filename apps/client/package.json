@@ -11,7 +11,8 @@
     "format": "prettier --write .",
     "cap:sync": "cap sync",
     "cap:add:android": "cap add android",
-    "cap:open:android": "cap open android"
+    "cap:open:android": "cap open android",
+    "test:ui": "node test/ui-smoke.cjs"
   },
   "dependencies": {
     "@capacitor/core": "^8.5.2",
